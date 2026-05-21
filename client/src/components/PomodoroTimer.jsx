@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Maximize2, Minimize2, CheckCircle, Volume2, VolumeX, BookOpen } from 'lucide-react';
+import { Play, Pause, RotateCcw, Maximize2, Minimize2, CheckCircle, Volume2, VolumeX, BookOpen, Settings } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import confetti from 'canvas-confetti';
@@ -7,8 +7,28 @@ import confetti from 'canvas-confetti';
 const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionCompleted }) => {
   const { user, refreshProfile } = useAuth();
   
+  // Custom Timer Settings (persisted)
+  const [focusTime, setFocusTime] = useState(() => {
+    const saved = localStorage.getItem('studyverse_focus_time');
+    return saved ? parseInt(saved, 10) : 25;
+  });
+  const [shortBreakTime, setShortBreakTime] = useState(() => {
+    const saved = localStorage.getItem('studyverse_short_break_time');
+    return saved ? parseInt(saved, 10) : 5;
+  });
+  const [longBreakTime, setLongBreakTime] = useState(() => {
+    const saved = localStorage.getItem('studyverse_long_break_time');
+    return saved ? parseInt(saved, 10) : 15;
+  });
+
+  const [showSettings, setShowSettings] = useState(false);
+
   // Timer States
-  const [secondsLeft, setSecondsLeft] = useState(25 * 60);
+  const [secondsLeft, setSecondsLeft] = useState(() => {
+    const savedFocus = localStorage.getItem('studyverse_focus_time');
+    const mins = savedFocus ? parseInt(savedFocus, 10) : 25;
+    return mins * 60;
+  });
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState('focus'); // 'focus', 'shortBreak', 'longBreak'
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -22,16 +42,47 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
   // Audio references
   const completionAudio = useRef(null);
 
+  // Helper to resolve dynamically configured durations
+  const getModeTime = (m) => {
+    if (m === 'focus') return focusTime * 60;
+    if (m === 'shortBreak') return shortBreakTime * 60;
+    if (m === 'longBreak') return longBreakTime * 60;
+    return 25 * 60;
+  };
+
+  const handleDurationChange = (type, newMins) => {
+    const mins = Math.max(1, Math.min(120, newMins)); // limit range between 1 and 120 mins
+    if (type === 'focus') {
+      setFocusTime(mins);
+      localStorage.setItem('studyverse_focus_time', mins);
+      if (mode === 'focus' && !isRunning) {
+        setSecondsLeft(mins * 60);
+      }
+    } else if (type === 'shortBreak') {
+      setShortBreakTime(mins);
+      localStorage.setItem('studyverse_short_break_time', mins);
+      if (mode === 'shortBreak' && !isRunning) {
+        setSecondsLeft(mins * 60);
+      }
+    } else if (type === 'longBreak') {
+      setLongBreakTime(mins);
+      localStorage.setItem('studyverse_long_break_time', mins);
+      if (mode === 'longBreak' && !isRunning) {
+        setSecondsLeft(mins * 60);
+      }
+    }
+  };
+
   // Constants
   const MODE_SETTINGS = {
-    focus: { time: 25 * 60, label: 'Focus Time', color: 'text-brand-neonPurple', border: 'border-brand-neonPurple/30' },
-    shortBreak: { time: 5 * 60, label: 'Short Break', color: 'text-brand-neonCyan', border: 'border-brand-neonCyan/30' },
-    longBreak: { time: 15 * 60, label: 'Long Break', color: 'text-brand-neonPink', border: 'border-brand-neonPink/30' }
+    focus: { label: 'Focus Time', color: 'text-brand-neonPurple', border: 'border-brand-neonPurple/30' },
+    shortBreak: { label: 'Short Break', color: 'text-brand-neonCyan', border: 'border-brand-neonCyan/30' },
+    longBreak: { label: 'Long Break', color: 'text-brand-neonPink', border: 'border-brand-neonPink/30' }
   };
 
   useEffect(() => {
     // Set timer based on mode
-    setSecondsLeft(MODE_SETTINGS[mode].time);
+    setSecondsLeft(getModeTime(mode));
     setIsRunning(false);
   }, [mode]);
 
@@ -64,7 +115,7 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
 
     if (mode === 'focus') {
       try {
-        const duration = MODE_SETTINGS.focus.time;
+        const duration = getModeTime('focus');
         const res = await api.post('/focus/log', { duration, subject });
         
         setXpReward(res.xpEarned);
@@ -95,7 +146,7 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
 
   const resetTimer = () => {
     setIsRunning(false);
-    setSecondsLeft(MODE_SETTINGS[mode].time);
+    setSecondsLeft(getModeTime(mode));
   };
 
   const formatTime = (totalSeconds) => {
@@ -104,7 +155,8 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progressPercent = ((MODE_SETTINGS[mode].time - secondsLeft) / MODE_SETTINGS[mode].time) * 100;
+  const totalModeTime = getModeTime(mode);
+  const progressPercent = ((totalModeTime - secondsLeft) / totalModeTime) * 100;
 
   // Render Compact view (for sidebar widget or dashboard item)
   if (compact) {
@@ -116,12 +168,20 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
           <span className="text-xs uppercase tracking-wider font-semibold text-brand-textMuted">
             Focus Session
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button 
               onClick={() => setSoundEnabled(!soundEnabled)} 
               className="text-brand-textMuted hover:text-brand-text transition-colors"
+              title={soundEnabled ? 'Mute' : 'Unmute'}
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-brand-neonPink" />}
+            </button>
+            <button 
+              onClick={() => setShowSettings(!showSettings)} 
+              className={`text-brand-textMuted hover:text-brand-text transition-colors ${showSettings ? 'text-brand-neonPurple' : ''}`}
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
             </button>
             <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${MODE_SETTINGS[mode].border} ${MODE_SETTINGS[mode].color}`}>
               {MODE_SETTINGS[mode].label}
@@ -129,48 +189,100 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-4xl font-extrabold font-mono text-brand-text tracking-widest">
-              {formatTime(secondsLeft)}
-            </span>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="What are you studying?"
-              className="bg-transparent border-b border-transparent hover:border-brand-accent/25 focus:border-brand-accent text-xs mt-1 text-brand-textMuted focus:text-brand-text focus:outline-none w-36 transition-colors"
-            />
+        {showSettings ? (
+          <div className="flex flex-col gap-2 min-h-[72px] justify-center bg-brand-surface/30 p-3 rounded-xl border border-brand-accent/10 animate-fade-in">
+            {/* Focus Duration */}
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-brand-textMuted font-medium">Focus:</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleDurationChange('focus', focusTime - 1)}
+                  className="w-5 h-5 rounded-md bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPurple hover:text-brand-neonPurple font-bold transition-all"
+                >-</button>
+                <span className="font-mono text-brand-text w-10 text-center">{focusTime}m</span>
+                <button 
+                  onClick={() => handleDurationChange('focus', focusTime + 1)}
+                  className="w-5 h-5 rounded-md bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPurple hover:text-brand-neonPurple font-bold transition-all"
+                >+</button>
+              </div>
+            </div>
+            {/* Short Break Duration */}
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-brand-textMuted font-medium">Short Break:</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleDurationChange('shortBreak', shortBreakTime - 1)}
+                  className="w-5 h-5 rounded-md bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonCyan hover:text-brand-neonCyan font-bold transition-all"
+                >-</button>
+                <span className="font-mono text-brand-text w-10 text-center">{shortBreakTime}m</span>
+                <button 
+                  onClick={() => handleDurationChange('shortBreak', shortBreakTime + 1)}
+                  className="w-5 h-5 rounded-md bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonCyan hover:text-brand-neonCyan font-bold transition-all"
+                >+</button>
+              </div>
+            </div>
+            {/* Long Break Duration */}
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-brand-textMuted font-medium">Long Break:</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleDurationChange('longBreak', longBreakTime - 1)}
+                  className="w-5 h-5 rounded-md bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPink hover:text-brand-neonPink font-bold transition-all"
+                >-</button>
+                <span className="font-mono text-brand-text w-10 text-center">{longBreakTime}m</span>
+                <button 
+                  onClick={() => handleDurationChange('longBreak', longBreakTime + 1)}
+                  className="w-5 h-5 rounded-md bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPink hover:text-brand-neonPink font-bold transition-all"
+                >+</button>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={toggleTimer}
-              className={`p-3 rounded-full flex items-center justify-center transition-all ${
-                isRunning 
-                  ? 'bg-brand-neonPink/20 text-brand-neonPink border border-brand-neonPink/30' 
-                  : 'bg-brand-accent/20 text-brand-neonPurple border border-brand-accent/30 hover:scale-105'
-              }`}
-            >
-              {isRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
-            </button>
-            <button
-              onClick={resetTimer}
-              className="p-3 rounded-full bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text transition-colors"
-            >
-              <RotateCcw className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-4xl font-extrabold font-mono text-brand-text tracking-widest animate-pulse-glow">
+                  {formatTime(secondsLeft)}
+                </span>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="What are you studying?"
+                  className="bg-transparent border-b border-transparent hover:border-brand-accent/25 focus:border-brand-accent text-xs mt-1 text-brand-textMuted focus:text-brand-text focus:outline-none w-36 transition-colors"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={toggleTimer}
+                  className={`p-3 rounded-full flex items-center justify-center transition-all ${
+                    isRunning 
+                      ? 'bg-brand-neonPink/20 text-brand-neonPink border border-brand-neonPink/30' 
+                      : 'bg-brand-accent/20 text-brand-neonPurple border border-brand-accent/30 hover:scale-105'
+                  }`}
+                >
+                  {isRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
+                </button>
+                <button
+                  onClick={resetTimer}
+                  className="p-3 rounded-full bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text transition-colors"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
 
-        {/* Progress Bar */}
-        <div className="w-full h-1 bg-brand-bg rounded-full overflow-hidden">
-          <div 
-            className={`h-full transition-all duration-1000 ${
-              mode === 'focus' ? 'bg-brand-neonPurple' : mode === 'shortBreak' ? 'bg-brand-neonCyan' : 'bg-brand-neonPink'
-            }`} 
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+            {/* Progress Bar */}
+            <div className="w-full h-1 bg-brand-bg rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-1000 ${
+                  mode === 'focus' ? 'bg-brand-neonPurple' : mode === 'shortBreak' ? 'bg-brand-neonCyan' : 'bg-brand-neonPink'
+                }`} 
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </>
+        )}
 
         {/* XP Reward Notification */}
         {xpReward && (
@@ -294,6 +406,7 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
           <button
             onClick={resetTimer}
             className="p-4 rounded-full bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text hover:scale-105 transition-all"
+            title="Reset Timer"
           >
             <RotateCcw className="w-5 h-5" />
           </button>
@@ -309,10 +422,21 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
             {isRunning ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
           </button>
 
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className={`p-4 rounded-full bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text hover:scale-105 transition-all ${
+              showSettings ? 'border-brand-neonPurple text-brand-neonPurple' : ''
+            }`}
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+
           {!isFullscreen && (
             <button
               onClick={() => setIsFullscreen(true)}
               className="p-4 rounded-full bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text hover:scale-105 transition-all"
+              title="Fullscreen"
             >
               <Maximize2 className="w-5 h-5" />
             </button>
@@ -328,6 +452,110 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
           )}
         </div>
       </div>
+
+      {/* Settings Overlay for Full view */}
+      {showSettings && (
+        <div className="absolute inset-0 bg-brand-bg/95 z-20 flex flex-col items-center justify-center p-8 animate-fade-in">
+          <div className="glass-panel p-6 rounded-2xl w-full max-w-xs flex flex-col gap-4 border border-brand-accent/20">
+            <div className="flex justify-between items-center pb-2 border-b border-brand-accent/15">
+              <span className="text-xs uppercase tracking-wider font-extrabold text-brand-text">Timer Customization</span>
+              <button 
+                onClick={() => setShowSettings(false)}
+                className="text-xs text-brand-neonPurple hover:text-brand-text font-bold uppercase transition-colors"
+              >
+                Done
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-4 mt-2">
+              {/* Focus Duration */}
+              <div className="flex flex-col gap-1">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-brand-textMuted">Focus Interval</span>
+                  <span className="text-brand-neonPurple font-mono">{focusTime}m</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => handleDurationChange('focus', focusTime - 1)}
+                    className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPurple hover:text-brand-neonPurple font-bold transition-all text-sm"
+                  >-</button>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="120" 
+                    value={focusTime}
+                    onChange={(e) => handleDurationChange('focus', parseInt(e.target.value, 10))}
+                    className="flex-1 h-1 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-brand-neonPurple"
+                  />
+                  <button 
+                    onClick={() => handleDurationChange('focus', focusTime + 1)}
+                    className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPurple hover:text-brand-neonPurple font-bold transition-all text-sm"
+                  >+</button>
+                </div>
+              </div>
+
+              {/* Short Break Duration */}
+              <div className="flex flex-col gap-1">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-brand-textMuted">Short Break</span>
+                  <span className="text-brand-neonCyan font-mono">{shortBreakTime}m</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => handleDurationChange('shortBreak', shortBreakTime - 1)}
+                    className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonCyan hover:text-brand-neonCyan font-bold transition-all text-sm"
+                  >-</button>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="60" 
+                    value={shortBreakTime}
+                    onChange={(e) => handleDurationChange('shortBreak', parseInt(e.target.value, 10))}
+                    className="flex-1 h-1 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-brand-neonCyan"
+                  />
+                  <button 
+                    onClick={() => handleDurationChange('shortBreak', shortBreakTime + 1)}
+                    className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonCyan hover:text-brand-neonCyan font-bold transition-all text-sm"
+                  >+</button>
+                </div>
+              </div>
+
+              {/* Long Break Duration */}
+              <div className="flex flex-col gap-1">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-brand-textMuted">Long Break</span>
+                  <span className="text-brand-neonPink font-mono">{longBreakTime}m</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => handleDurationChange('longBreak', longBreakTime - 1)}
+                    className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPink hover:text-brand-neonPink font-bold transition-all text-sm"
+                  >-</button>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="60" 
+                    value={longBreakTime}
+                    onChange={(e) => handleDurationChange('longBreak', parseInt(e.target.value, 10))}
+                    className="flex-1 h-1 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-brand-neonPink"
+                  />
+                  <button 
+                    onClick={() => handleDurationChange('longBreak', longBreakTime + 1)}
+                    className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-accent/15 flex items-center justify-center text-brand-text hover:border-brand-neonPink hover:text-brand-neonPink font-bold transition-all text-sm"
+                  >+</button>
+                </div>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => setShowSettings(false)}
+              className="mt-2 w-full py-2 bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold rounded-xl shadow-neon-purple hover:scale-[1.02] transition-all uppercase tracking-wider"
+            >
+              Apply & Save
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Rewards overlays */}
       {xpReward && (

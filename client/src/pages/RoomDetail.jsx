@@ -38,10 +38,55 @@ const RoomDetail = () => {
   const [notepad, setNotepad] = useState('');
   
   // Synced Pomodoro States
+  const [focusMinutes, setFocusMinutes] = useState(25);
+  const [breakMinutes, setBreakMinutes] = useState(5);
+  const [roomMaxSeconds, setRoomMaxSeconds] = useState(25 * 60);
   const [secondsLeft, setSecondsLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [timerMode, setTimerMode] = useState('focus'); // 'focus', 'break'
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Host duration update
+  const handleUpdateRoomDurations = (type, newMins) => {
+    if (!isHost) return;
+    const mins = Math.max(1, Math.min(120, newMins));
+    let nextFocus = focusMinutes;
+    let nextBreak = breakMinutes;
+    let nextSeconds = secondsLeft;
+    
+    if (type === 'focus') {
+      nextFocus = mins;
+      setFocusMinutes(mins);
+      if (timerMode === 'focus' && !isRunning) {
+        nextSeconds = mins * 60;
+        setSecondsLeft(nextSeconds);
+      }
+    } else {
+      nextBreak = mins;
+      setBreakMinutes(mins);
+      if (timerMode === 'break' && !isRunning) {
+        nextSeconds = mins * 60;
+        setSecondsLeft(nextSeconds);
+      }
+    }
+
+    const maxSeconds = timerMode === 'focus' ? nextFocus * 60 : nextBreak * 60;
+    setRoomMaxSeconds(maxSeconds);
+
+    if (socket) {
+      socket.emit('sync_timer', {
+        roomCode: room.code,
+        timerState: { 
+          secondsLeft: nextSeconds, 
+          isRunning, 
+          timerMode, 
+          focusMinutes: nextFocus, 
+          breakMinutes: nextBreak,
+          roomMaxSeconds: maxSeconds
+        }
+      });
+    }
+  };
   
   const chatBottomRef = useRef(null);
   const completionAudio = useRef(null);
@@ -103,12 +148,22 @@ const RoomDetail = () => {
       setNotepad(notesContent);
     });
 
-    socket.on('receive_timer_sync', ({ secondsLeft: sLeft, isRunning: running, timerMode: tMode }) => {
+    socket.on('receive_timer_sync', ({ 
+      secondsLeft: sLeft, 
+      isRunning: running, 
+      timerMode: tMode,
+      focusMinutes: fMins,
+      breakMinutes: bMins,
+      roomMaxSeconds: rMaxSecs
+    }) => {
       // Sync only if not the host (who is sending it)
       if (!isHost) {
         setSecondsLeft(sLeft);
         setIsRunning(running);
         setTimerMode(tMode);
+        if (fMins !== undefined) setFocusMinutes(fMins);
+        if (bMins !== undefined) setBreakMinutes(bMins);
+        if (rMaxSecs !== undefined) setRoomMaxSeconds(rMaxSecs);
       }
     });
 
@@ -134,7 +189,14 @@ const RoomDetail = () => {
         if (isHost && socket) {
           socket.emit('sync_timer', {
             roomCode: room.code,
-            timerState: { secondsLeft: secondsLeft - 1, isRunning, timerMode }
+            timerState: { 
+              secondsLeft: secondsLeft - 1, 
+              isRunning, 
+              timerMode,
+              focusMinutes,
+              breakMinutes,
+              roomMaxSeconds: timerMode === 'focus' ? focusMinutes * 60 : breakMinutes * 60
+            }
           });
         }
       }, 1000);
@@ -143,7 +205,7 @@ const RoomDetail = () => {
     }
 
     return () => clearInterval(timerInterval);
-  }, [isRunning, secondsLeft, isHost, socket, room]);
+  }, [isRunning, secondsLeft, isHost, socket, room, focusMinutes, breakMinutes, timerMode]);
 
   const handleTimerCompletion = () => {
     setIsRunning(false);
@@ -161,10 +223,40 @@ const RoomDetail = () => {
     // Auto-transition
     if (timerMode === 'focus') {
       setTimerMode('break');
-      setSecondsLeft(5 * 60);
+      const nextSeconds = breakMinutes * 60;
+      setSecondsLeft(nextSeconds);
+      setRoomMaxSeconds(nextSeconds);
+      if (isHost && socket) {
+        socket.emit('sync_timer', {
+          roomCode: room.code,
+          timerState: { 
+            secondsLeft: nextSeconds, 
+            isRunning: false, 
+            timerMode: 'break',
+            focusMinutes,
+            breakMinutes,
+            roomMaxSeconds: nextSeconds
+          }
+        });
+      }
     } else {
       setTimerMode('focus');
-      setSecondsLeft(25 * 60);
+      const nextSeconds = focusMinutes * 60;
+      setSecondsLeft(nextSeconds);
+      setRoomMaxSeconds(nextSeconds);
+      if (isHost && socket) {
+        socket.emit('sync_timer', {
+          roomCode: room.code,
+          timerState: { 
+            secondsLeft: nextSeconds, 
+            isRunning: false, 
+            timerMode: 'focus',
+            focusMinutes,
+            breakMinutes,
+            roomMaxSeconds: nextSeconds
+          }
+        });
+      }
     }
   };
 
@@ -179,21 +271,31 @@ const RoomDetail = () => {
       nextRunning = !isRunning;
     } else if (action === 'reset') {
       nextRunning = false;
-      nextSeconds = timerMode === 'focus' ? 25 * 60 : 5 * 60;
+      nextSeconds = timerMode === 'focus' ? focusMinutes * 60 : breakMinutes * 60;
     } else if (action === 'switch') {
       nextRunning = false;
       nextMode = timerMode === 'focus' ? 'break' : 'focus';
-      nextSeconds = nextMode === 'focus' ? 25 * 60 : 5 * 60;
+      nextSeconds = nextMode === 'focus' ? focusMinutes * 60 : breakMinutes * 60;
     }
 
     setIsRunning(nextRunning);
     setSecondsLeft(nextSeconds);
     setTimerMode(nextMode);
+    
+    const maxSecs = nextMode === 'focus' ? focusMinutes * 60 : breakMinutes * 60;
+    setRoomMaxSeconds(maxSecs);
 
     if (socket) {
       socket.emit('sync_timer', {
         roomCode: room.code,
-        timerState: { secondsLeft: nextSeconds, isRunning: nextRunning, timerMode: nextMode }
+        timerState: { 
+          secondsLeft: nextSeconds, 
+          isRunning: nextRunning, 
+          timerMode: nextMode,
+          focusMinutes,
+          breakMinutes,
+          roomMaxSeconds: maxSecs
+        }
       });
     }
   };
@@ -342,7 +444,7 @@ const RoomDetail = () => {
                   strokeWidth="6"
                   fill="transparent"
                   strokeDasharray={2 * Math.PI * 100}
-                  strokeDashoffset={2 * Math.PI * 100 * (1 - ((timerMode === 'focus' ? 25*60 : 5*60) - secondsLeft) / (timerMode === 'focus' ? 25*60 : 5*60))}
+                  strokeDashoffset={2 * Math.PI * 100 * (1 - (roomMaxSeconds - secondsLeft) / roomMaxSeconds)}
                   strokeLinecap="round"
                   className="transition-all duration-1000"
                 />
@@ -357,25 +459,59 @@ const RoomDetail = () => {
               </div>
             </div>
 
+            {/* Host Custom Timer Inputs */}
+            {isHost && (
+              <div className="flex gap-4 mb-4 text-xs bg-brand-surface/30 p-2.5 rounded-xl border border-brand-accent/10">
+                <div className="flex flex-col items-center">
+                  <span className="text-[9px] uppercase tracking-wider text-brand-textMuted mb-1 font-bold">Focus</span>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => handleUpdateRoomDurations('focus', focusMinutes - 1)}
+                      className="w-5 h-5 rounded bg-brand-surface border border-brand-accent/15 flex items-center justify-center font-extrabold text-brand-text hover:border-brand-neonPurple hover:text-brand-neonPurple"
+                    >-</button>
+                    <span className="font-mono text-brand-text w-6 text-center">{focusMinutes}m</span>
+                    <button 
+                      onClick={() => handleUpdateRoomDurations('focus', focusMinutes + 1)}
+                      className="w-5 h-5 rounded bg-brand-surface border border-brand-accent/15 flex items-center justify-center font-extrabold text-brand-text hover:border-brand-neonPurple hover:text-brand-neonPurple"
+                    >+</button>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[9px] uppercase tracking-wider text-brand-textMuted mb-1 font-bold">Break</span>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => handleUpdateRoomDurations('break', breakMinutes - 1)}
+                      className="w-5 h-5 rounded bg-brand-surface border border-brand-accent/15 flex items-center justify-center font-extrabold text-brand-text hover:border-brand-neonCyan hover:text-brand-neonCyan"
+                    >-</button>
+                    <span className="font-mono text-brand-text w-6 text-center">{breakMinutes}m</span>
+                    <button 
+                      onClick={() => handleUpdateRoomDurations('break', breakMinutes + 1)}
+                      className="w-5 h-5 rounded bg-brand-surface border border-brand-accent/15 flex items-center justify-center font-extrabold text-brand-text hover:border-brand-neonCyan hover:text-brand-neonCyan"
+                    >+</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Host Controls */}
             {isHost ? (
               <div className="flex items-center gap-4 mt-2">
                 <button
                   onClick={() => handleHostControlTimer('switch')}
-                  className="p-3.5 rounded-xl bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text text-xs font-bold"
+                  className="p-3.5 rounded-xl bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text text-xs font-bold transition-all"
                   title="Switch Mode"
                 >
                   Mode
                 </button>
                 <button
                   onClick={() => handleHostControlTimer('toggle')}
-                  className="p-4 rounded-full bg-brand-accent hover:bg-brand-neonPurple text-white shadow-neon-purple"
+                  className="p-4 rounded-full bg-brand-accent hover:bg-brand-neonPurple text-white shadow-neon-purple transition-all"
                 >
                   {isRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                 </button>
                 <button
                   onClick={() => handleHostControlTimer('reset')}
-                  className="p-3.5 rounded-xl bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text"
+                  className="p-3.5 rounded-xl bg-brand-surface border border-brand-accent/15 text-brand-textMuted hover:text-brand-text transition-all"
                   title="Reset Timer"
                 >
                   <RotateCcw className="w-4 h-4" />
