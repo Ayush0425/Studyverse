@@ -92,11 +92,7 @@ const Dashboard = () => {
   // Local task list states (saved in localStorage)
   const [tasks, setTasks] = useState(() => {
     const saved = localStorage.getItem('studyverse_tasks');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, text: 'Review DSA Graphs & Trees', completed: false },
-      { id: 2, text: 'Build API routes for Auth', completed: true },
-      { id: 3, text: 'Complete Web Tech assignment', completed: false },
-    ];
+    return saved ? JSON.parse(saved) : [];
   });
   const [newTaskText, setNewTaskText] = useState('');
 
@@ -174,22 +170,44 @@ const Dashboard = () => {
     ],
   };
 
+  const chartLabels = user?.subjects && user.subjects.length > 0 ? user.subjects : defaultSubjects;
+
+  const chartData = chartLabels.map(label => {
+    if (stats?.subjectBreakdown) {
+      const idx = stats.subjectBreakdown.labels.findIndex(l => l.toLowerCase() === label.toLowerCase());
+      if (idx !== -1) {
+        return stats.subjectBreakdown.data[idx];
+      }
+    }
+    return 0;
+  });
+
+  const hasStudyStats = chartData.some(val => val > 0);
+
   const doughnutChartData = {
-    labels: stats?.subjectBreakdown?.labels.length ? stats.subjectBreakdown.labels : defaultSubjects,
+    labels: chartLabels,
     datasets: [
       {
-        data: stats?.subjectBreakdown?.data.length ? stats.subjectBreakdown.data : defaultSubjectTimes,
+        data: chartData,
         backgroundColor: [
           'rgba(157, 78, 221, 0.65)',
           'rgba(0, 240, 255, 0.65)',
           'rgba(255, 0, 122, 0.65)',
           'rgba(255, 159, 64, 0.65)',
+          'rgba(0, 200, 115, 0.65)',
+          'rgba(255, 220, 0, 0.65)',
+          'rgba(230, 50, 230, 0.65)',
+          'rgba(50, 100, 255, 0.65)'
         ],
         borderColor: [
           '#9D4EDD',
           '#00F0FF',
           '#FF007A',
           '#FF9F40',
+          '#00C873',
+          '#FFDC00',
+          '#E632E6',
+          '#3264FF'
         ],
         borderWidth: 1,
       },
@@ -388,7 +406,16 @@ const Dashboard = () => {
                 Subject Focus (Minutes)
               </h3>
               <div className="flex-1 relative flex items-center justify-center">
-                <Doughnut data={doughnutChartData} options={doughnutOptions} />
+                {hasStudyStats ? (
+                  <Doughnut data={doughnutChartData} options={doughnutOptions} />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center p-4">
+                    <BookOpen className="w-8 h-8 text-brand-accent/40 mb-2 animate-pulse" />
+                    <p className="text-xs text-brand-textMuted max-w-[200px]">
+                      No focus sessions logged yet for your subjects. Start studying to see your breakdown!
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
