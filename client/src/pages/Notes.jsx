@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api, { API_URL } from '../services/api';
+import api, { API_URL, BASE_URL } from '../services/api';
 import { 
   Folder, 
   FileText, 
@@ -345,12 +345,12 @@ const Notes = () => {
               ) : selectedNote.fileType === 'image' ? (
                 <div className="flex flex-col gap-3">
                   <img 
-                    src={`http://localhost:5000${selectedNote.content}`} 
+                    src={`${BASE_URL}${selectedNote.content}`} 
                     alt={selectedNote.title}
                     className="rounded-lg max-h-60 object-contain w-full bg-black/20"
                   />
                   <a
-                    href={`http://localhost:5000${selectedNote.content}`}
+                    href={`${BASE_URL}${selectedNote.content}`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-1.5 text-xs text-brand-neonCyan font-bold hover:underline"
@@ -363,7 +363,7 @@ const Notes = () => {
                   <FileText className="w-12 h-12 text-brand-neonPurple mb-3" />
                   <span className="font-bold text-xs uppercase tracking-wider text-brand-text block mb-2">PDF Document</span>
                   <a
-                    href={`http://localhost:5000${selectedNote.content}`}
+                    href={`${BASE_URL}${selectedNote.content}`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-2 px-4 py-2 bg-brand-accent/20 border border-brand-accent/40 rounded-xl text-xs font-bold text-brand-neonPurple hover:bg-brand-accent/30 transition-all"

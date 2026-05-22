@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { BASE_URL } from '../services/api';
 
 const SocketContext = createContext(null);
 
@@ -13,7 +14,7 @@ export const SocketProvider = ({ children }) => {
 
     if (isAuthenticated) {
       // Connect to the socket server
-      socketInstance = io('http://localhost:5000', {
+      socketInstance = io(BASE_URL, {
         autoConnect: true,
       });
 
