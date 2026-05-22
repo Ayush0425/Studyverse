@@ -34,6 +34,15 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [subject, setSubject] = useState(defaultSubject);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Set default subject when user subjects load
+  useEffect(() => {
+    if (user?.subjects && user.subjects.length > 0) {
+      if (subject === 'General' || !user.subjects.includes(subject)) {
+        setSubject(user.subjects[0]);
+      }
+    }
+  }, [user?.subjects]);
   
   // XP & Level-up states
   const [xpReward, setXpReward] = useState(null);
@@ -244,13 +253,28 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
                 <span className="text-4xl font-extrabold font-mono text-brand-text tracking-widest animate-pulse-glow">
                   {formatTime(secondsLeft)}
                 </span>
-                <input
-                  type="text"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  placeholder="What are you studying?"
-                  className="bg-transparent border-b border-transparent hover:border-brand-accent/25 focus:border-brand-accent text-xs mt-1 text-brand-textMuted focus:text-brand-text focus:outline-none w-36 transition-colors"
-                />
+                {user?.subjects && user.subjects.length > 0 ? (
+                  <select
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    className="bg-transparent border-b border-transparent hover:border-brand-accent/25 focus:border-brand-accent text-xs mt-1 text-brand-textMuted focus:text-brand-text focus:outline-none w-36 transition-colors cursor-pointer"
+                  >
+                    {user.subjects.map((sub) => (
+                      <option key={sub} value={sub} className="bg-brand-bg text-brand-text">
+                        {sub}
+                      </option>
+                    ))}
+                    <option value="General" className="bg-brand-bg text-brand-text">General</option>
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="What are you studying?"
+                    className="bg-transparent border-b border-transparent hover:border-brand-accent/25 focus:border-brand-accent text-xs mt-1 text-brand-textMuted focus:text-brand-text focus:outline-none w-36 transition-colors"
+                  />
+                )}
               </div>
               <div className="flex gap-2">
                 <button
@@ -392,13 +416,29 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
       <div className="flex flex-col items-center w-full max-w-xs z-10 gap-6">
         <div className="flex items-center gap-2 border border-brand-accent/15 bg-brand-surface/40 px-4 py-2.5 rounded-2xl w-full">
           <BookOpen className="w-4 h-4 text-brand-neonPurple flex-shrink-0" />
-          <input
-            type="text"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder="Focus subject (e.g. DSA, Web Tech)"
-            className="bg-transparent text-sm text-brand-text focus:outline-none w-full text-center"
-          />
+          {user?.subjects && user.subjects.length > 0 ? (
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="bg-transparent text-sm text-brand-text focus:outline-none w-full text-center cursor-pointer appearance-none"
+              style={{ textAlignLast: 'center' }}
+            >
+              {user.subjects.map((sub) => (
+                <option key={sub} value={sub} className="bg-brand-bg text-brand-text">
+                  {sub}
+                </option>
+              ))}
+              <option value="General" className="bg-brand-bg text-brand-text">General</option>
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Focus subject (e.g. DSA, Web Tech)"
+              className="bg-transparent text-sm text-brand-text focus:outline-none w-full text-center"
+            />
+          )}
         </div>
 
         {/* Action controls */}

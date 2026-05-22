@@ -43,11 +43,51 @@ const QUOTES = [
 ];
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, updateSubjects } = useAuth();
   const [stats, setStats] = useState(null);
   const [notesCount, setNotesCount] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
   const [quote, setQuote] = useState({ text: '', author: '' });
+  
+  // Custom onboarding subjects state
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [customSubject, setCustomSubject] = useState('');
+  const [savingSubjects, setSavingSubjects] = useState(false);
+
+  const SUBJECT_PRESETS = [
+    'DSA', 
+    'Web Technology', 
+    'DBMS', 
+    'Python', 
+    'Machine Learning', 
+    'Computer Networks', 
+    'Operating Systems', 
+    'Mathematics'
+  ];
+
+  const handleSaveSubjects = async () => {
+    if (selectedSubjects.length === 0) {
+      alert('Please select or add at least one subject!');
+      return;
+    }
+    setSavingSubjects(true);
+    try {
+      await updateSubjects(selectedSubjects);
+    } catch (err) {
+      console.error('Failed to update subjects:', err);
+    } finally {
+      setSavingSubjects(false);
+    }
+  };
+
+  const handleAddCustomSubject = (e) => {
+    e.preventDefault();
+    const trimmed = customSubject.trim();
+    if (trimmed && !selectedSubjects.includes(trimmed)) {
+      setSelectedSubjects([...selectedSubjects, trimmed]);
+      setCustomSubject('');
+    }
+  };
   
   // Local task list states (saved in localStorage)
   const [tasks, setTasks] = useState(() => {
@@ -195,7 +235,14 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center gap-2 border border-brand-accent/20 bg-brand-surface/40 p-3 rounded-2xl">
           <TrendingUp className="w-5 h-5 text-brand-neonCyan" />
-          <span className="text-sm font-semibold text-brand-text">Today's Focus: <span className="text-brand-neonCyan">DSA + Web Tech</span></span>
+          <span className="text-sm font-semibold text-brand-text">
+            Today's Focus:{' '}
+            <span className="text-brand-neonCyan">
+              {user?.subjects && user.subjects.length > 0 
+                ? user.subjects.slice(0, 3).join(' + ') + (user.subjects.length > 3 ? '...' : '')
+                : 'General Study'}
+            </span>
+          </span>
         </div>
       </div>
 
@@ -363,6 +410,102 @@ const Dashboard = () => {
         </div>
 
       </div>
+
+      {/* Onboarding Modal */}
+      {user && (!user.subjects || user.subjects.length === 0) && (
+        <div className="fixed inset-0 bg-brand-bg/90 backdrop-filter backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-lg glass-panel-heavy rounded-3xl p-8 shadow-glass-glow relative border border-brand-accent/20 animate-fade-in">
+            <div className="flex flex-col items-center text-center mb-6">
+              <BookOpen className="w-12 h-12 text-brand-neonPurple mb-3 animate-pulse-glow" />
+              <h2 className="text-2xl font-extrabold text-brand-text tracking-wide">
+                Welcome to Studyverse! 📚
+              </h2>
+              <p className="text-brand-textMuted text-xs mt-1.5 max-w-sm leading-relaxed">
+                Let's personalize your portal. Which subjects are you studying this semester? (Select at least one)
+              </p>
+            </div>
+
+            {/* Preset selection grid */}
+            <div className="flex flex-wrap gap-2.5 justify-center mb-6">
+              {SUBJECT_PRESETS.map((preset) => {
+                const isSelected = selectedSubjects.includes(preset);
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedSubjects(selectedSubjects.filter(s => s !== preset));
+                      } else {
+                        setSelectedSubjects([...selectedSubjects, preset]);
+                      }
+                    }}
+                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all duration-300 ${
+                      isSelected
+                        ? 'bg-brand-neonPurple/25 border-brand-neonPurple text-brand-neonPurple shadow-neon-purple scale-105'
+                        : 'bg-brand-surface/40 border-brand-accent/15 text-brand-textMuted hover:text-brand-text hover:border-brand-accent/30'
+                    }`}
+                  >
+                    {preset}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom subject input */}
+            <form onSubmit={handleAddCustomSubject} className="flex gap-2 mb-6">
+              <input
+                type="text"
+                value={customSubject}
+                onChange={(e) => setCustomSubject(e.target.value)}
+                placeholder="Add custom subject (e.g. History)"
+                className="flex-1 px-4 py-3 rounded-xl glass-input text-xs"
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 rounded-xl bg-brand-surface border border-brand-accent/25 text-brand-neonPurple text-xs font-bold hover:bg-brand-accent/10 transition-all flex items-center justify-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </form>
+
+            {/* Selected Subjects list */}
+            {selectedSubjects.length > 0 && (
+              <div className="mb-6">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-brand-textMuted block mb-2 text-center">Selected Subjects</span>
+                <div className="flex flex-wrap gap-2 justify-center max-h-24 overflow-y-auto p-1.5 rounded-xl bg-brand-bg/35 border border-brand-accent/10">
+                  {selectedSubjects.map(sub => (
+                    <span 
+                      key={sub}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-accent/10 border border-brand-accent/20 rounded-lg text-xs text-brand-text"
+                    >
+                      {sub}
+                      <button 
+                        type="button" 
+                        onClick={() => setSelectedSubjects(selectedSubjects.filter(s => s !== sub))}
+                        className="text-brand-neonPink hover:text-white font-bold ml-1"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Save Action Button */}
+            <button
+              type="button"
+              onClick={handleSaveSubjects}
+              disabled={savingSubjects || selectedSubjects.length === 0}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
+            >
+              {savingSubjects ? 'Saving...' : 'Save & Continue'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

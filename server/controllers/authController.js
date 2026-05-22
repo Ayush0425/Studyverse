@@ -40,6 +40,7 @@ export const registerUser = async (req, res) => {
         level: user.level,
         streak: user.streak,
         badges: user.badges,
+        subjects: user.subjects,
         token: generateToken(user._id),
       });
     } else {
@@ -93,6 +94,7 @@ export const authUser = async (req, res) => {
         level: user.level,
         streak: user.streak,
         badges: user.badges,
+        subjects: user.subjects,
         token: generateToken(user._id),
       });
     } else {
@@ -119,6 +121,7 @@ export const getUserProfile = async (req, res) => {
         level: user.level,
         streak: user.streak,
         badges: user.badges,
+        subjects: user.subjects,
         createdAt: user.createdAt,
       });
     } else {
@@ -128,3 +131,32 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Update user subjects
+// @route   PUT /api/auth/subjects
+// @access  Private
+export const updateUserSubjects = async (req, res) => {
+  const { subjects } = req.body;
+
+  if (!Array.isArray(subjects)) {
+    return res.status(400).json({ message: 'Subjects must be an array of strings' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.subjects = subjects;
+      await user.save();
+      res.json({
+        _id: user._id,
+        subjects: user.subjects,
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

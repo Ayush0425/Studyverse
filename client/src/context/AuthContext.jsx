@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }) => {
         level: data.level,
         streak: data.streak,
         badges: data.badges,
+        subjects: data.subjects || [],
       });
       return data;
     } catch (error) {
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         level: data.level,
         streak: data.streak,
         badges: data.badges,
+        subjects: data.subjects || [],
       });
       return data;
     } catch (error) {
@@ -91,6 +93,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateSubjects = async (subjects) => {
+    try {
+      const data = await api.put('/auth/subjects', { subjects });
+      updateProfileState({ subjects: data.subjects });
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -101,6 +113,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateProfileState,
         refreshProfile,
+        updateSubjects,
         isAuthenticated: !!user,
       }}
     >

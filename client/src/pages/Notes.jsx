@@ -15,10 +15,14 @@ import {
   Sparkles,
   ArrowLeft
 } from 'lucide-react';
-
-const FOLDERS = ['General', 'DSA', 'Web Technology', 'DBMS', 'Python'];
+import { useAuth } from '../context/AuthContext';
 
 const Notes = () => {
+  const { user } = useAuth();
+  const folders = user?.subjects && user.subjects.length > 0
+    ? ['General', ...user.subjects]
+    : ['General', 'DSA', 'Web Technology', 'DBMS', 'Python'];
+
   const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -223,7 +227,7 @@ const Notes = () => {
             >
               All Folders
             </button>
-            {FOLDERS.map((folder) => (
+            {folders.map((folder) => (
               <button
                 key={folder}
                 onClick={() => setActiveFolder(folder)}
@@ -445,7 +449,7 @@ const Notes = () => {
                   onChange={(e) => setNewFolder(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl glass-input text-xs bg-brand-surface cursor-pointer"
                 >
-                  {FOLDERS.map(f => (
+                  {folders.map(f => (
                     <option key={f} value={f}>{f}</option>
                   ))}
                 </select>
