@@ -91,7 +91,7 @@ const Dashboard = () => {
   
   // Local task list states (saved in localStorage)
   const [tasks, setTasks] = useState(() => {
-    const saved = localStorage.getItem('studyverse_tasks');
+    const saved = localStorage.getItem('studyverse_tasks_v2');
     return saved ? JSON.parse(saved) : [];
   });
   const [newTaskText, setNewTaskText] = useState('');
@@ -127,9 +127,8 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [user]);
 
-  // Sync tasks to localStorage
   useEffect(() => {
-    localStorage.setItem('studyverse_tasks', JSON.stringify(tasks));
+    localStorage.setItem('studyverse_tasks_v2', JSON.stringify(tasks));
   }, [tasks]);
 
   const addTask = (e) => {
