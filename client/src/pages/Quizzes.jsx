@@ -146,12 +146,12 @@ const Quizzes = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-brand-bg px-8 py-8 relative flex">
+    <div className="flex-1 min-h-screen bg-brand-bg px-4 md:px-8 py-6 md:py-8 relative flex">
       {/* Background neon glows */}
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Main Area */}
-      <div className="flex-1 pr-4">
+      <div className="flex-1 pr-0 md:pr-4">
         
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -254,7 +254,7 @@ const Quizzes = () => {
 
         {/* 2. Generating Loading State */}
         {generating && (
-          <div className="glass-panel p-12 rounded-3xl max-w-xl mx-auto text-center flex flex-col items-center justify-center min-h-[400px]">
+          <div className="glass-panel p-6 sm:p-12 rounded-3xl max-w-xl mx-auto text-center flex flex-col items-center justify-center min-h-[350px] sm:min-h-[400px]">
             {/* Pulse generator logo */}
             <div className="relative mb-6">
               <div className="w-16 h-16 rounded-3xl bg-brand-accent/20 border border-brand-accent/40 flex items-center justify-center text-brand-neonPurple shadow-glass animate-ping absolute" />
@@ -275,7 +275,7 @@ const Quizzes = () => {
 
         {/* 3. Active Quiz Question Stepper */}
         {quiz && !finished && (
-          <div className="glass-panel p-8 rounded-3xl max-w-2xl mx-auto flex flex-col justify-between min-h-[480px]">
+          <div className="glass-panel p-5 sm:p-8 rounded-3xl max-w-2xl mx-auto flex flex-col justify-between min-h-[400px] sm:min-h-[480px]">
             <div>
               {/* Stepper info */}
               <div className="flex justify-between items-center mb-6 pb-4 border-b border-brand-accent/15">
@@ -283,7 +283,7 @@ const Quizzes = () => {
                   <span className="text-[10px] uppercase font-bold tracking-widest text-brand-neonCyan block">
                     Active Quiz session
                   </span>
-                  <h4 className="font-extrabold text-sm text-brand-text truncate max-w-md">{quiz.title}</h4>
+                  <h4 className="font-extrabold text-sm text-brand-text truncate max-w-[150px] sm:max-w-md">{quiz.title}</h4>
                 </div>
                 <div className="text-right">
                   <span className="text-xs text-brand-text font-semibold font-mono">
@@ -375,16 +375,16 @@ const Quizzes = () => {
                       
                       <div className="pt-3 border-t border-brand-neonCyan/15 flex flex-col gap-2">
                         <span className="text-[10px] font-bold text-brand-textMuted uppercase">Did you hit the key concepts? Evaluate honestly:</span>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={() => handleShortAnswerEvaluate(true)}
-                            className="px-4 py-2 bg-brand-neonCyan/20 text-brand-neonCyan hover:bg-brand-neonCyan/30 text-xs font-bold rounded-lg border border-brand-neonCyan/35"
+                            className="w-full sm:w-auto px-4 py-2 bg-brand-neonCyan/20 text-brand-neonCyan hover:bg-brand-neonCyan/30 text-xs font-bold rounded-lg border border-brand-neonCyan/35 text-center"
                           >
                             Yes, I was correct! (+1 pt)
                           </button>
                           <button
                             onClick={() => handleShortAnswerEvaluate(false)}
-                            className="px-4 py-2 bg-brand-neonPink/20 text-brand-neonPink hover:bg-brand-neonPink/30 text-xs font-bold rounded-lg border border-brand-neonPink/35"
+                            className="w-full sm:w-auto px-4 py-2 bg-brand-neonPink/20 text-brand-neonPink hover:bg-brand-neonPink/30 text-xs font-bold rounded-lg border border-brand-neonPink/35 text-center"
                           >
                             No, missed key concepts (0 pt)
                           </button>
@@ -411,7 +411,7 @@ const Quizzes = () => {
 
         {/* 4. Complete Quiz Session Overview */}
         {quiz && finished && (
-          <div className="glass-panel p-8 rounded-3xl max-w-md mx-auto text-center flex flex-col items-center justify-center min-h-[440px]">
+          <div className="glass-panel p-6 sm:p-8 rounded-3xl max-w-md mx-auto text-center flex flex-col items-center justify-center min-h-[380px] sm:min-h-[440px]">
             <div className="w-16 h-16 rounded-full bg-brand-neonCyan/15 border border-brand-neonCyan/35 flex items-center justify-center text-brand-neonCyan shadow-neon-cyan mb-4 animate-float">
               <Award className="w-8 h-8" />
             </div>

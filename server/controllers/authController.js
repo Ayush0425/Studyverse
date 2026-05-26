@@ -41,6 +41,8 @@ export const registerUser = async (req, res) => {
         streak: user.streak,
         badges: user.badges,
         subjects: user.subjects,
+        todaysFocus: user.todaysFocus,
+        lastFocusDate: user.lastFocusDate,
         token: generateToken(user._id),
       });
     } else {
@@ -95,6 +97,8 @@ export const authUser = async (req, res) => {
         streak: user.streak,
         badges: user.badges,
         subjects: user.subjects,
+        todaysFocus: user.todaysFocus,
+        lastFocusDate: user.lastFocusDate,
         token: generateToken(user._id),
       });
     } else {
@@ -122,6 +126,8 @@ export const getUserProfile = async (req, res) => {
         streak: user.streak,
         badges: user.badges,
         subjects: user.subjects,
+        todaysFocus: user.todaysFocus,
+        lastFocusDate: user.lastFocusDate,
         createdAt: user.createdAt,
       });
     } else {
@@ -151,6 +157,8 @@ export const updateUserSubjects = async (req, res) => {
       res.json({
         _id: user._id,
         subjects: user.subjects,
+        todaysFocus: user.todaysFocus,
+        lastFocusDate: user.lastFocusDate,
       });
     } else {
       res.status(404).json({ message: 'User not found' });
@@ -159,4 +167,47 @@ export const updateUserSubjects = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Update user today's focus
+// @route   PUT /api/auth/focus
+// @access  Private
+export const updateUserFocus = async (req, res) => {
+  const { todaysFocus, date } = req.body;
+
+  if (!Array.isArray(todaysFocus)) {
+    return res.status(400).json({ message: 'Focus subjects must be an array of strings' });
+  }
+  if (!date || typeof date !== 'string') {
+    return res.status(400).json({ message: 'Date string YYYY-MM-DD is required' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.todaysFocus = todaysFocus;
+      user.lastFocusDate = date;
+      
+      // Add new focus subjects to overall subjects if not already present
+      todaysFocus.forEach(f => {
+        if (!user.subjects.includes(f)) {
+          user.subjects.push(f);
+        }
+      });
+
+      await user.save();
+      res.json({
+        _id: user._id,
+        subjects: user.subjects,
+        todaysFocus: user.todaysFocus,
+        lastFocusDate: user.lastFocusDate,
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 

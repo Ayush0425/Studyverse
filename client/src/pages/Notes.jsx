@@ -155,7 +155,7 @@ const Notes = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-brand-bg px-8 py-8 relative flex">
+    <div className="flex-1 min-h-screen bg-brand-bg px-4 md:px-8 py-6 md:py-8 relative flex">
       {/* Background glow */}
       <div className="absolute top-0 left-1/3 w-96 h-96 bg-brand-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
@@ -316,7 +316,7 @@ const Notes = () => {
 
       {/* Slide-out Drawer Panel (Selected Note details & AI Generator link) */}
       {selectedNote && (
-        <div className="w-[380px] bg-brand-surface/95 border-l border-brand-accent/25 fixed top-0 right-0 h-screen shadow-2xl flex flex-col justify-between z-30 animate-slide-in">
+        <div className="w-full sm:w-[380px] bg-brand-surface/95 border-l border-brand-accent/25 fixed top-0 right-0 h-screen shadow-2xl flex flex-col justify-between z-30 animate-slide-in">
           
           {/* Drawer Header */}
           <div className="p-6 border-b border-brand-accent/15 flex items-center justify-between">
@@ -403,7 +403,7 @@ const Notes = () => {
       {/* Note Upload Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-brand-bg/85 backdrop-filter backdrop-blur-sm flex items-center justify-center z-40 p-4">
-          <div className="w-full max-w-lg glass-panel-heavy rounded-3xl p-6 shadow-glass-glow relative animate-fade-in">
+          <div className="w-full max-w-lg glass-panel-heavy rounded-3xl p-6 shadow-glass-glow relative animate-fade-in max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => { setIsModalOpen(false); setUploadFile(null); setUploadError(''); }}
               className="absolute top-4 right-4 text-brand-textMuted hover:text-brand-text transition-colors p-1"

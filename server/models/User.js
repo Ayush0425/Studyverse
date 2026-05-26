@@ -42,6 +42,14 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  todaysFocus: {
+    type: [String],
+    default: [],
+  },
+  lastFocusDate: {
+    type: String,
+    default: "",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

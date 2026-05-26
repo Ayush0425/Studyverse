@@ -37,9 +37,9 @@ const ProtectedRoute = ({ children }) => {
 // Layout wrapper for pages requiring Sidebar
 const AppLayout = ({ children }) => {
   return (
-    <div className="flex bg-brand-bg min-h-screen">
+    <div className="flex bg-brand-bg min-h-screen flex-col md:flex-row">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-x-hidden">
+      <div className="flex-1 flex flex-col overflow-x-hidden pt-16 md:pt-0">
         {children}
       </div>
     </div>

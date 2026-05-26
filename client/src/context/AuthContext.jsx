@@ -39,6 +39,8 @@ export const AuthProvider = ({ children }) => {
         streak: data.streak,
         badges: data.badges,
         subjects: data.subjects || [],
+        todaysFocus: data.todaysFocus || [],
+        lastFocusDate: data.lastFocusDate || '',
       });
       return data;
     } catch (error) {
@@ -62,6 +64,8 @@ export const AuthProvider = ({ children }) => {
         streak: data.streak,
         badges: data.badges,
         subjects: data.subjects || [],
+        todaysFocus: data.todaysFocus || [],
+        lastFocusDate: data.lastFocusDate || '',
       });
       return data;
     } catch (error) {
@@ -96,7 +100,25 @@ export const AuthProvider = ({ children }) => {
   const updateSubjects = async (subjects) => {
     try {
       const data = await api.put('/auth/subjects', { subjects });
-      updateProfileState({ subjects: data.subjects });
+      updateProfileState({ 
+        subjects: data.subjects,
+        todaysFocus: data.todaysFocus,
+        lastFocusDate: data.lastFocusDate
+      });
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const updateTodaysFocus = async (todaysFocus, date) => {
+    try {
+      const data = await api.put('/auth/focus', { todaysFocus, date });
+      updateProfileState({ 
+        subjects: data.subjects,
+        todaysFocus: data.todaysFocus,
+        lastFocusDate: data.lastFocusDate 
+      });
       return data;
     } catch (error) {
       throw error;
@@ -114,6 +136,7 @@ export const AuthProvider = ({ children }) => {
         updateProfileState,
         refreshProfile,
         updateSubjects,
+        updateTodaysFocus,
         isAuthenticated: !!user,
       }}
     >

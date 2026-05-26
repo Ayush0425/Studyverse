@@ -10,7 +10,8 @@ import {
   Plus, 
   Check, 
   Trash2, 
-  Quote 
+  Quote,
+  X
 } from 'lucide-react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -40,10 +41,21 @@ const QUOTES = [
   { text: "Focus on being productive instead of busy.", author: "Tim Ferriss" },
   { text: "Your talent determines what you can do. Your motivation determines how much you are willing to do.", author: "Lou Holtz" },
   { text: "Don't wish it were easier. Wish you were better.", author: "Jim Rohn" },
+  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+  { text: "Productivity is never an accident. It is the result of a commitment to excellence, intelligent planning, and focused effort.", author: "Paul J. Meyer" },
+  { text: "The only place where success comes before work is in the dictionary.", author: "Vidal Sassoon" },
+  { text: "There are no shortcuts to any place worth going.", author: "Beverly Sills" },
+  { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+  { text: "The best way to predict the future is to create it.", author: "Abraham Lincoln" },
+  { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+  { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+  { text: "Strive for continuous improvement, not perfection.", author: "Kim Collins" },
 ];
 
 const Dashboard = () => {
-  const { user, updateSubjects } = useAuth();
+  const { user, updateSubjects, updateTodaysFocus } = useAuth();
   const [stats, setStats] = useState(null);
   const [notesCount, setNotesCount] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
@@ -53,6 +65,12 @@ const Dashboard = () => {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [customSubject, setCustomSubject] = useState('');
   const [savingSubjects, setSavingSubjects] = useState(false);
+
+  // Today's focus modal states
+  const [isFocusModalOpen, setIsFocusModalOpen] = useState(false);
+  const [todaysFocusSelected, setTodaysFocusSelected] = useState([]);
+  const [customFocusSubject, setCustomFocusSubject] = useState('');
+  const [savingFocus, setSavingFocus] = useState(false);
 
   const SUBJECT_PRESETS = [
     'DSA', 
@@ -73,6 +91,8 @@ const Dashboard = () => {
     setSavingSubjects(true);
     try {
       await updateSubjects(selectedSubjects);
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      await updateTodaysFocus(selectedSubjects, todayStr);
     } catch (err) {
       console.error('Failed to update subjects:', err);
     } finally {
@@ -130,6 +150,16 @@ const Dashboard = () => {
   useEffect(() => {
     localStorage.setItem('studyverse_tasks_v2', JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    if (user && user.subjects && user.subjects.length > 0) {
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      if (user.lastFocusDate !== todayStr) {
+        setTodaysFocusSelected(user.todaysFocus || []);
+        setIsFocusModalOpen(true);
+      }
+    }
+  }, [user]);
 
   const addTask = (e) => {
     e.preventDefault();
@@ -237,11 +267,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-brand-bg px-8 py-8 relative">
+    <div className="flex-1 min-h-screen bg-brand-bg px-4 md:px-8 py-6 md:py-8 relative">
       <div className="absolute top-0 right-0 w-96 h-96 bg-brand-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Welcome Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-extrabold text-brand-text tracking-wide">
             Hi, {user?.name || 'Ayush'} 👋
@@ -250,14 +280,21 @@ const Dashboard = () => {
             Ready to break limits today? Let's check your focus.
           </p>
         </div>
-        <div className="flex items-center gap-2 border border-brand-accent/20 bg-brand-surface/40 p-3 rounded-2xl">
-          <TrendingUp className="w-5 h-5 text-brand-neonCyan" />
+        <div 
+          onClick={() => {
+            setTodaysFocusSelected(user?.todaysFocus || []);
+            setIsFocusModalOpen(true);
+          }}
+          className="flex items-center gap-2 border border-brand-accent/20 bg-brand-surface/40 p-3 rounded-2xl cursor-pointer hover:border-brand-neonCyan/50 hover:bg-brand-accent/5 transition-all group"
+          title="Click to edit today's focus"
+        >
+          <TrendingUp className="w-5 h-5 text-brand-neonCyan group-hover:scale-110 transition-transform" />
           <span className="text-sm font-semibold text-brand-text">
             Today's Focus:{' '}
             <span className="text-brand-neonCyan">
-              {user?.subjects && user.subjects.length > 0 
-                ? user.subjects.slice(0, 3).join(' + ') + (user.subjects.length > 3 ? '...' : '')
-                : 'General Study'}
+              {user?.todaysFocus && user.todaysFocus.length > 0 
+                ? user.todaysFocus.join(' + ')
+                : 'Not Set (Set Focus)'}
             </span>
           </span>
         </div>
@@ -440,7 +477,7 @@ const Dashboard = () => {
       {/* Onboarding Modal */}
       {user && (!user.subjects || user.subjects.length === 0) && (
         <div className="fixed inset-0 bg-brand-bg/90 backdrop-filter backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-lg glass-panel-heavy rounded-3xl p-8 shadow-glass-glow relative border border-brand-accent/20 animate-fade-in">
+          <div className="w-full max-w-lg glass-panel-heavy rounded-3xl p-5 md:p-8 max-h-[90vh] overflow-y-auto shadow-glass-glow relative border border-brand-accent/20 animate-fade-in">
             <div className="flex flex-col items-center text-center mb-6">
               <BookOpen className="w-12 h-12 text-brand-neonPurple mb-3 animate-pulse-glow" />
               <h2 className="text-2xl font-extrabold text-brand-text tracking-wide">
@@ -528,6 +565,134 @@ const Dashboard = () => {
               className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
             >
               {savingSubjects ? 'Saving...' : 'Save & Continue'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Today's Focus Modal */}
+      {isFocusModalOpen && (
+        <div className="fixed inset-0 bg-brand-bg/90 backdrop-filter backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-lg glass-panel-heavy rounded-3xl p-5 md:p-8 max-h-[90vh] overflow-y-auto shadow-glass-glow relative border border-brand-accent/20 animate-fade-in">
+            <button
+              onClick={() => setIsFocusModalOpen(false)}
+              className="absolute top-4 right-4 text-brand-textMuted hover:text-brand-text transition-colors p-1"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="flex flex-col items-center text-center mb-6">
+              <TrendingUp className="w-12 h-12 text-brand-neonCyan mb-3 animate-pulse-glow" />
+              <h2 className="text-2xl font-extrabold text-brand-text tracking-wide">
+                Today's Focus! 🎯
+              </h2>
+              <p className="text-brand-textMuted text-xs mt-1.5 max-w-sm leading-relaxed">
+                What are you focusing on today, {user?.name || 'Ayush'}? Choose from your subjects or add a new one. (We will ask you this every new day!)
+              </p>
+            </div>
+
+            {/* Subjects selection grid */}
+            <div className="flex flex-wrap gap-2.5 justify-center mb-6">
+              {user?.subjects && user.subjects.map((sub) => {
+                const isSelected = todaysFocusSelected.includes(sub);
+                return (
+                  <button
+                    key={sub}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setTodaysFocusSelected(todaysFocusSelected.filter(s => s !== sub));
+                      } else {
+                        setTodaysFocusSelected([...todaysFocusSelected, sub]);
+                      }
+                    }}
+                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all duration-300 ${
+                      isSelected
+                        ? 'bg-brand-neonCyan/25 border-brand-neonCyan text-brand-neonCyan shadow-neon-cyan scale-105'
+                        : 'bg-brand-surface/40 border-brand-accent/15 text-brand-textMuted hover:text-brand-text hover:border-brand-accent/30'
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom subject for today */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const trimmed = customFocusSubject.trim();
+                if (trimmed && !todaysFocusSelected.includes(trimmed)) {
+                  setTodaysFocusSelected([...todaysFocusSelected, trimmed]);
+                  setCustomFocusSubject('');
+                }
+              }} 
+              className="flex gap-2 mb-6"
+            >
+              <input
+                type="text"
+                value={customFocusSubject}
+                onChange={(e) => setCustomFocusSubject(e.target.value)}
+                placeholder="Add custom focus subject..."
+                className="flex-1 px-4 py-3 rounded-xl glass-input text-xs"
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 rounded-xl bg-brand-surface border border-brand-accent/25 text-brand-neonCyan text-xs font-bold hover:bg-brand-accent/10 transition-all flex items-center justify-center gap-1.5"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </form>
+
+            {/* Selected Today's Focus list */}
+            {todaysFocusSelected.length > 0 && (
+              <div className="mb-6">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-brand-textMuted block mb-2 text-center">Selected for Today</span>
+                <div className="flex flex-wrap gap-2 justify-center max-h-24 overflow-y-auto p-1.5 rounded-xl bg-brand-bg/35 border border-brand-accent/10">
+                  {todaysFocusSelected.map(sub => (
+                    <span 
+                      key={sub}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-accent/10 border border-brand-accent/20 rounded-lg text-xs text-brand-text"
+                    >
+                      {sub}
+                      <button 
+                        type="button" 
+                        onClick={() => setTodaysFocusSelected(todaysFocusSelected.filter(s => s !== sub))}
+                        className="text-brand-neonPink hover:text-white font-bold ml-1"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Save Focus Action Button */}
+            <button
+              type="button"
+              onClick={async () => {
+                if (todaysFocusSelected.length === 0) {
+                  alert('Please select at least one focus area!');
+                  return;
+                }
+                setSavingFocus(true);
+                try {
+                  const todayStr = new Date().toLocaleDateString('en-CA');
+                  await updateTodaysFocus(todaysFocusSelected, todayStr);
+                  setIsFocusModalOpen(false);
+                } catch (err) {
+                  console.error('Failed to update today\'s focus:', err);
+                } finally {
+                  setSavingFocus(false);
+                }
+              }}
+              disabled={savingFocus || todaysFocusSelected.length === 0}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonCyan text-white text-xs font-bold tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
+            >
+              {savingFocus ? 'Saving Focus...' : 'Set Focus & Start Day'}
             </button>
           </div>
         </div>

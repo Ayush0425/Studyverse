@@ -59,7 +59,7 @@ const Rooms = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-brand-bg px-8 py-8 relative flex">
+    <div className="flex-1 min-h-screen bg-brand-bg px-4 md:px-8 py-6 md:py-8 relative flex">
       {/* Background Neon glows */}
       <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-brand-accent/5 rounded-full blur-[140px] pointer-events-none" />
 

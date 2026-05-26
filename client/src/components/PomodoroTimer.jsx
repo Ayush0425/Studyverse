@@ -51,6 +51,39 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
   // Audio references
   const completionAudio = useRef(null);
 
+  const playChimeSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        const audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const playNote = (frequency, startTime, duration) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(frequency, startTime);
+          gain.gain.setValueAtTime(0.15, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        };
+        const now = audioCtx.currentTime;
+        playNote(523.25, now, 0.4);
+        playNote(659.25, now + 0.12, 0.6);
+        return;
+      }
+    } catch (e) {
+      console.warn("Web Audio API chime failed, falling back to HTMLAudioElement:", e);
+    }
+    if (completionAudio.current) {
+      completionAudio.current.play().catch(err => console.log("Audio play failed:", err));
+    }
+  };
+
   // Helper to resolve dynamically configured durations
   const getModeTime = (m) => {
     if (m === 'focus') return focusTime * 60;
@@ -111,8 +144,8 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
     setIsRunning(false);
     
     // Play chime sound
-    if (soundEnabled && completionAudio.current) {
-      completionAudio.current.play().catch(e => console.log("Audio play failed:", e));
+    if (soundEnabled) {
+      playChimeSound();
     }
 
     // Explode confetti!

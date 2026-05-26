@@ -37,19 +37,19 @@ const Leaderboard = () => {
 
   const getPodiumStyles = (pos) => {
     if (pos === 1) return {
-      height: 'h-40',
+      height: 'h-28 sm:h-36 md:h-40',
       podiumBg: 'bg-gradient-to-t from-yellow-600/30 to-yellow-500/25 border-yellow-500/50 shadow-neon-cyan',
       badgeColor: 'text-yellow-400',
       badgeText: 'GOLD'
     };
     if (pos === 2) return {
-      height: 'h-32',
+      height: 'h-20 sm:h-28 md:h-32',
       podiumBg: 'bg-gradient-to-t from-slate-500/25 to-slate-400/20 border-slate-400/40',
       badgeColor: 'text-slate-300',
       badgeText: 'SILVER'
     };
     return {
-      height: 'h-24',
+      height: 'h-16 sm:h-20 md:h-24',
       podiumBg: 'bg-gradient-to-t from-amber-700/25 to-amber-600/20 border-amber-600/40',
       badgeColor: 'text-amber-500',
       badgeText: 'BRONZE'
@@ -57,7 +57,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-brand-bg px-8 py-8 relative flex">
+    <div className="flex-1 min-h-screen bg-brand-bg px-4 md:px-8 py-6 md:py-8 relative flex">
       {/* Background glow */}
       <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-brand-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
@@ -85,31 +85,31 @@ const Leaderboard = () => {
             
             {/* 1. TOP 3 PODIUM */}
             {podiumOrder.length > 0 && (
-              <div className="flex items-end justify-center gap-6 mt-6 mb-4">
+              <div className="flex items-end justify-center gap-2 sm:gap-6 mt-6 mb-4">
                 {podiumOrder.map((u) => {
                   const { height, podiumBg, badgeColor, badgeText } = getPodiumStyles(u.pos);
                   return (
                     <div 
                       key={u._id}
-                      className="flex flex-col items-center select-none w-48 text-center"
+                      className="flex flex-col items-center select-none w-28 sm:w-36 md:w-48 text-center"
                     >
                       {/* Avatar */}
                       <div className="relative mb-3.5 flex flex-col items-center">
-                        <div className={`w-14 h-14 rounded-full bg-brand-accent/15 border border-brand-accent/40 flex items-center justify-center text-lg font-black text-brand-text ${u.pos === 1 ? 'w-16 h-16 text-xl shadow-glass' : ''}`}>
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-brand-accent/15 border border-brand-accent/40 flex items-center justify-center text-xs sm:text-base md:text-lg font-black text-brand-text ${u.pos === 1 ? 'w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-sm sm:text-lg md:text-xl shadow-glass' : ''}`}>
                           {u.name.charAt(0).toUpperCase()}
                         </div>
-                        <span className={`absolute -top-3 px-2 py-0.5 rounded-full text-[9px] font-black border uppercase tracking-wider ${podiumBg} ${badgeColor}`}>
+                        <span className={`absolute -top-3 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black border uppercase tracking-wider ${podiumBg} ${badgeColor}`}>
                           {badgeText}
                         </span>
                       </div>
 
                       {/* Username */}
-                      <span className="text-xs font-bold text-brand-text truncate max-w-[150px] block">{u.name}</span>
-                      <span className="text-[10px] text-brand-textMuted mt-0.5">{u.xp} XP</span>
+                      <span className="text-[10px] sm:text-xs font-bold text-brand-text truncate max-w-[80px] sm:max-w-[120px] md:max-w-[150px] block">{u.name}</span>
+                      <span className="text-[9px] sm:text-[10px] text-brand-textMuted mt-0.5">{u.xp} XP</span>
 
                       {/* Podium Stand */}
                       <div className={`w-full ${height} rounded-t-2xl border-t border-x mt-4 flex items-center justify-center ${podiumBg}`}>
-                        <span className={`text-4xl font-extrabold tracking-tighter ${badgeColor}`}>#{u.pos}</span>
+                        <span className={`text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tighter ${badgeColor}`}>#{u.pos}</span>
                       </div>
                     </div>
                   );
@@ -167,10 +167,10 @@ const Leaderboard = () => {
 
             {/* Current user positioning banner at the bottom */}
             {currentUserRank > 0 && (
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-brand-accent/25 to-brand-bg border border-brand-accent/35 flex items-center justify-between shadow-glass mt-2 select-none animate-pulse-glow">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-brand-accent/25 to-brand-bg border border-brand-accent/35 flex flex-col sm:flex-row gap-3 items-center justify-between shadow-glass mt-2 select-none animate-pulse-glow">
                 <div className="flex items-center gap-3">
                   <Award className="w-5 h-5 text-brand-neonCyan" />
-                  <span className="text-xs font-semibold text-brand-text">Your Standing Position: <span className="text-brand-neonCyan font-black">Rank #{currentUserRank}</span></span>
+                  <span className="text-xs font-semibold text-brand-text text-center sm:text-left">Your Standing Position: <span className="text-brand-neonCyan font-black">Rank #{currentUserRank}</span></span>
                 </div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-brand-textMuted">Level {user?.level} • {user?.xp} XP</span>
               </div>
