@@ -70,7 +70,7 @@ const Rooms = () => {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold text-brand-text tracking-wide">
+            <h1 className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-white via-brand-neonPurple to-brand-neonCyan bg-clip-text text-transparent pb-1">
               Collaborative Study Rooms
             </h1>
             <p className="text-brand-textMuted text-sm mt-0.5">

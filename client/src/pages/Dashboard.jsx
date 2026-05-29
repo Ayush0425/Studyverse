@@ -273,7 +273,7 @@ const Dashboard = () => {
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-brand-text tracking-wide">
+          <h1 className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-white via-brand-neonPurple to-brand-neonCyan bg-clip-text text-transparent pb-1">
             Hi, {user?.name || 'Ayush'} 👋
           </h1>
           <p className="text-brand-textMuted text-sm mt-1">
@@ -353,7 +353,7 @@ const Dashboard = () => {
 
           {/* Today's Tasks */}
           <div className="glass-panel p-6 rounded-3xl flex flex-col h-[320px]">
-            <h3 className="text-lg font-bold text-brand-text mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-extrabold text-white mb-4 flex items-center justify-between">
               <span>Today's Tasks</span>
               <span className="text-[11px] bg-brand-accent/20 border border-brand-accent/30 text-brand-neonPurple px-2.5 py-0.5 rounded-full font-bold">
                 {tasks.filter(t => !t.completed).length} Left
@@ -428,7 +428,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Weekly Study Hours */}
             <div className="glass-panel p-6 rounded-3xl flex flex-col h-[280px]">
-              <h3 className="text-sm uppercase tracking-wider font-semibold text-brand-textMuted mb-4">
+              <h3 className="text-sm uppercase tracking-wider font-bold text-white mb-4">
                 Weekly Study Time (Hours)
               </h3>
               <div className="flex-1 relative">
@@ -438,7 +438,7 @@ const Dashboard = () => {
 
             {/* Subject Distribution */}
             <div className="glass-panel p-6 rounded-3xl flex flex-col h-[280px]">
-              <h3 className="text-sm uppercase tracking-wider font-semibold text-brand-textMuted mb-4">
+              <h3 className="text-sm uppercase tracking-wider font-bold text-white mb-4">
                 Subject Focus (Minutes)
               </h3>
               <div className="flex-1 relative flex items-center justify-center">

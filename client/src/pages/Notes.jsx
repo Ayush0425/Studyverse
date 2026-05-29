@@ -165,9 +165,9 @@ const Notes = () => {
         {/* Hub Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-brand-text tracking-wide flex items-center gap-3">
+            <h1 className="text-3xl font-extrabold tracking-wide flex items-center gap-3">
               <BookOpen className="w-8 h-8 text-brand-neonPurple" />
-              Notes Hub
+              <span className="bg-gradient-to-r from-white via-brand-neonPurple to-brand-neonCyan bg-clip-text text-transparent pb-1">Notes Hub</span>
             </h1>
             <p className="text-brand-textMuted text-sm mt-1">
               Store notes, organize by folder, and generate AI quizzes instantly.

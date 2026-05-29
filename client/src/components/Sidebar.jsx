@@ -75,17 +75,17 @@ const Sidebar = () => {
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold tracking-wider bg-gradient-to-r from-brand-text to-brand-neonPurple bg-clip-text text-transparent">
+                <h1 className="text-xl font-extrabold tracking-wider bg-gradient-to-r from-white via-brand-neonPurple to-brand-neonCyan bg-clip-text text-transparent">
                   STUDYVERSE
                 </h1>
-                <span className="text-[10px] uppercase text-brand-neonCyan tracking-widest font-semibold text-glow-cyan">
+                <span className="text-[10px] uppercase text-brand-neonCyan tracking-widest font-bold text-glow-cyan">
                   AI Portal
                 </span>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 text-brand-textMuted hover:text-brand-text md:hidden border border-brand-accent/20 rounded-lg bg-brand-surface"
+              className="p-1.5 text-white hover:text-brand-neonCyan md:hidden border border-brand-accent/20 rounded-lg bg-brand-surface"
               aria-label="Close navigation menu"
             >
               <X className="w-5 h-5" />
@@ -95,16 +95,16 @@ const Sidebar = () => {
           {/* User Mini Profile */}
           {user && (
             <div className="mx-4 my-2 p-4 rounded-2xl glass-panel flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-accent/20 border border-brand-accent/50 flex items-center justify-center text-brand-neonPurple font-bold">
+              <div className="w-10 h-10 rounded-full bg-brand-accent/20 border border-brand-accent/50 flex items-center justify-center text-brand-neonPurple font-black">
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="overflow-hidden">
-                <h3 className="font-semibold text-sm truncate text-brand-text">{user.name}</h3>
+                <h3 className="font-extrabold text-sm truncate text-white">{user.name}</h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-[10px] bg-brand-accent/30 text-brand-neonPurple px-1.5 py-0.5 rounded-full font-bold border border-brand-accent/25">
                     Lvl {user.level}
                   </span>
-                  <span className="text-[11px] text-brand-textMuted font-medium">
+                  <span className="text-[11px] text-brand-text/70 font-semibold">
                     {user.xp} XP
                   </span>
                 </div>
@@ -122,10 +122,10 @@ const Sidebar = () => {
                   to={item.path}
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) => `
-                    flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-sm border
+                    flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-bold text-sm border
                     ${isActive 
-                      ? 'bg-brand-accent/20 border-brand-accent/50 text-brand-neonPurple shadow-glass' 
-                      : 'border-transparent text-brand-textMuted hover:text-brand-text hover:bg-brand-accent/5'
+                      ? 'bg-gradient-to-r from-brand-accent/35 to-brand-neonPurple/25 border-brand-neonPurple/60 text-white shadow-neon-purple scale-[1.02]' 
+                      : 'border-transparent text-brand-text/75 hover:text-white hover:bg-brand-accent/10'
                     }
                   `}
                 >

@@ -69,7 +69,7 @@ const Leaderboard = () => {
             <Trophy className="w-5 h-5 fill-current" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold text-brand-text tracking-wide">
+            <h1 className="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-white via-brand-neonPurple to-brand-neonCyan bg-clip-text text-transparent pb-1">
               Global Leaderboard
             </h1>
             <p className="text-brand-textMuted text-sm mt-0.5">
