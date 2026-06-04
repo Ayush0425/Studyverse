@@ -104,7 +104,7 @@ const Rooms = () => {
               />
               <button
                 type="submit"
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white font-bold text-xs uppercase tracking-wider shadow-glass hover:scale-102 transition-all cursor-pointer"
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-102 transition-all cursor-pointer"
               >
                 Create
               </button>
@@ -129,7 +129,7 @@ const Rooms = () => {
               />
               <button
                 type="submit"
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-accent text-white font-bold text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-102 transition-all cursor-pointer"
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-102 transition-all cursor-pointer"
               >
                 Join
               </button>

@@ -176,7 +176,7 @@ const Notes = () => {
           
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white font-bold text-sm tracking-wide shadow-glass hover:scale-105 transition-all duration-300 active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black text-sm tracking-wide shadow-neon-cyan hover:scale-105 transition-all duration-300 active:scale-95 cursor-pointer"
           >
             <Plus className="w-5 h-5" />
             Upload Note
@@ -383,9 +383,9 @@ const Notes = () => {
           <div className="p-6 border-t border-brand-accent/15 bg-brand-bg/20 flex gap-3">
             <button
               onClick={() => navigate('/quizzes', { state: { noteId: selectedNote._id } })}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold tracking-wider uppercase shadow-glass hover:scale-105 transition-all duration-300 cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg text-xs font-black tracking-wider uppercase shadow-neon-cyan hover:scale-105 transition-all duration-300 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-white fill-current animate-pulse-glow" />
+              <Sparkles className="w-4 h-4 text-brand-bg fill-current animate-pulse-glow" />
               Generate AI Quiz
             </button>
             
@@ -528,7 +528,7 @@ const Notes = () => {
                 <button
                   type="submit"
                   disabled={isUploading}
-                  className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg text-xs font-black tracking-wider uppercase shadow-neon-cyan transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   {isUploading ? 'Uploading...' : 'Save Note'}
                 </button>

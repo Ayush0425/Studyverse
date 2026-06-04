@@ -8,8 +8,8 @@ export default {
     extend: {
       colors: {
         brand: {
-          bg: '#0B0816',         // Deep dark violet background
-          surface: '#140E28',    // Dark card surface
+          bg: '#07050D',         // Obsidian dark gray background
+          surface: '#110D20',    // Dark card surface
           accent: '#7B2CBF',     // Purple neon accent
           neonPurple: '#9D4EDD', // High brightness purple
           neonBlue: '#2400FF',   // Neon blue accent

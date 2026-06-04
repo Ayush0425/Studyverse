@@ -48,7 +48,7 @@ const Login = () => {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-accent to-brand-neonCyan flex items-center justify-center shadow-glass-glow">
             <Sparkles className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-wider bg-gradient-to-r from-brand-text to-brand-neonPurple bg-clip-text text-transparent mt-2">
+          <h1 className="text-3xl font-extrabold tracking-wider bg-gradient-to-r from-white via-brand-neonPurple to-brand-neonCyan bg-clip-text text-transparent mt-2 pb-1">
             STUDYVERSE
           </h1>
           <p className="text-brand-textMuted text-sm text-center">
@@ -154,7 +154,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple hover:to-brand-accent hover:from-brand-neonPurple text-white font-bold text-sm tracking-wide shadow-glass transition-all duration-300 active:scale-95 disabled:opacity-50 mt-4 cursor-pointer"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black text-sm tracking-wide shadow-neon-cyan transition-all duration-300 active:scale-95 disabled:opacity-50 mt-4 cursor-pointer"
           >
             {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
           </button>

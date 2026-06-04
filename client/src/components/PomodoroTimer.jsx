@@ -489,7 +489,7 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
             className={`p-6 rounded-full flex items-center justify-center shadow-glass transition-all duration-300 hover:scale-110 cursor-pointer ${
               isRunning 
                 ? 'bg-brand-neonPink text-white shadow-neon-pink' 
-                : 'bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white shadow-neon-purple'
+                : 'bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black shadow-neon-cyan'
             }`}
           >
             {isRunning ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
@@ -622,7 +622,7 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
             
             <button
               onClick={() => setShowSettings(false)}
-              className="mt-2 w-full py-2 bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold rounded-xl shadow-neon-purple hover:scale-[1.02] transition-all uppercase tracking-wider"
+              className="mt-2 w-full py-2 bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black rounded-xl shadow-neon-cyan hover:scale-[1.02] transition-all uppercase tracking-wider"
             >
               Apply & Save
             </button>

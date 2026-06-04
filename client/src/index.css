@@ -7,7 +7,7 @@
 @layer base {
   body {
     font-family: 'Outfit', sans-serif;
-    background-color: #0B0816;
+    background-color: #07050D;
     color: #F1EBF9;
     overflow-x: hidden;
   }
@@ -18,7 +18,7 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0B0816;
+    background: #07050D;
   }
   ::-webkit-scrollbar-thumb {
     background: #240E48;

@@ -155,7 +155,7 @@ const Quizzes = () => {
         
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-accent to-brand-neonPurple flex items-center justify-center shadow-glass-glow text-white animate-float">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-neonCyan to-brand-neonPurple flex items-center justify-center shadow-glass-glow text-white animate-float">
             <Sparkles className="w-5 h-5 fill-current" />
           </div>
           <div>
@@ -200,7 +200,7 @@ const Quizzes = () => {
 
                     <button
                       onClick={handleGenerateQuiz}
-                      className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white font-bold text-xs uppercase tracking-wider shadow-glass hover:scale-[1.02] transition-all cursor-pointer"
+                      className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-[1.02] transition-all cursor-pointer"
                     >
                       <Sparkles className="w-4 h-4 fill-current" />
                       Generate AI Quiz

@@ -562,7 +562,7 @@ const Dashboard = () => {
               type="button"
               onClick={handleSaveSubjects}
               disabled={savingSubjects || selectedSubjects.length === 0}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonPurple text-white text-xs font-bold tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
             >
               {savingSubjects ? 'Saving...' : 'Save & Continue'}
             </button>
@@ -690,7 +690,7 @@ const Dashboard = () => {
                 }
               }}
               disabled={savingFocus || todaysFocusSelected.length === 0}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonCyan text-white text-xs font-bold tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black tracking-wider uppercase shadow-glass transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer text-center block"
             >
               {savingFocus ? 'Saving Focus...' : 'Set Focus & Start Day'}
             </button>
