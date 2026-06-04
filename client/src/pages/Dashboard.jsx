@@ -413,7 +413,7 @@ const Dashboard = () => {
               />
               <button 
                 type="submit"
-                className="p-2.5 rounded-xl bg-brand-accent hover:bg-brand-neonPurple text-white transition-colors cursor-pointer"
+                className="p-2.5 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black hover:scale-105 shadow-neon-cyan transition-all cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
               </button>

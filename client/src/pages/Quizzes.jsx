@@ -359,7 +359,7 @@ const Quizzes = () => {
                     <button
                       onClick={handleShortReveal}
                       disabled={!shortAnswerUserText.trim()}
-                      className="py-3 px-5 rounded-xl bg-brand-accent text-white text-xs font-bold uppercase tracking-wider shadow-glass hover:bg-brand-neonPurple transition-all disabled:opacity-40 cursor-pointer self-start"
+                      className="py-3 px-5 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-105 transition-all disabled:opacity-40 cursor-pointer self-start"
                     >
                       Compare Answer
                     </button>
@@ -400,7 +400,7 @@ const Quizzes = () => {
             {isAnswerRevealed && quiz.questions[activeStep].type !== 'short' && (
               <button
                 onClick={handleNextStep}
-                className="mt-6 flex items-center justify-center gap-2 py-3 px-6 bg-brand-accent hover:bg-brand-neonPurple text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-glass transition-all duration-300 self-end cursor-pointer"
+                className="mt-6 flex items-center justify-center gap-2 py-3 px-6 bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black rounded-xl text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-105 transition-all duration-300 self-end cursor-pointer"
               >
                 Next Question
                 <ArrowRight className="w-4 h-4" />
@@ -450,7 +450,7 @@ const Quizzes = () => {
                   </button>
                   <button
                     onClick={resetQuizSession}
-                    className="flex-1 py-3.5 bg-brand-accent hover:bg-brand-neonPurple text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-glass transition-colors cursor-pointer"
+                    className="flex-1 py-3.5 bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black rounded-xl text-xs uppercase tracking-wider shadow-neon-cyan hover:scale-105 transition-all cursor-pointer"
                   >
                     All Quizzes
                   </button>

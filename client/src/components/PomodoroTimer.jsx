@@ -653,7 +653,7 @@ const PomodoroTimer = ({ compact = false, defaultSubject = 'General', onSessionC
               setXpReward(null);
               setLevelUpNotice(false);
             }}
-            className="px-6 py-2.5 bg-brand-accent text-white rounded-xl font-bold text-sm tracking-wide hover:bg-brand-neonPurple transition-all mt-2 shadow-glass cursor-pointer"
+            className="px-6 py-2.5 bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black rounded-xl text-sm tracking-wide shadow-neon-cyan hover:scale-105 transition-all mt-2 cursor-pointer"
           >
             Claim Rewards
           </button>

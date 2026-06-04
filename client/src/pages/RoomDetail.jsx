@@ -605,7 +605,7 @@ const RoomDetail = () => {
                   </button>
                   <button
                     onClick={() => handleHostControlTimer('toggle')}
-                    className="p-3.5 sm:p-4 rounded-full bg-brand-accent hover:bg-brand-neonPurple text-white shadow-neon-purple transition-all"
+                    className="p-3.5 sm:p-4 rounded-full bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black hover:scale-105 shadow-neon-cyan transition-all"
                   >
                     {isRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                   </button>
@@ -687,7 +687,7 @@ const RoomDetail = () => {
             />
             <button
               type="submit"
-              className="p-2.5 rounded-xl bg-brand-accent hover:bg-brand-neonPurple text-white transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl bg-gradient-to-r from-brand-neonCyan to-brand-neonPurple text-brand-bg font-black hover:scale-105 shadow-neon-cyan transition-all cursor-pointer"
             >
               <Send className="w-4 h-4" />
             </button>
